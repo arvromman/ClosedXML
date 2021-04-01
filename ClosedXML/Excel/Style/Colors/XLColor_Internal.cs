@@ -1,5 +1,5 @@
 using System;
-using System.Drawing;
+using Color = SkiaSharp.SKColor;
 
 namespace ClosedXML.Excel
 {

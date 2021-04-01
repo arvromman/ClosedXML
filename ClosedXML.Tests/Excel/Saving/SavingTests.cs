@@ -5,7 +5,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using NUnit.Framework;
 using System;
-using System.Drawing;
+using Bitmap = SkiaSharp.SKBitmap;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -305,7 +305,7 @@ namespace ClosedXML.Tests.Excel.Saving
             using (var ms = new MemoryStream())
             using (var wb = new XLWorkbook())
             using (var resourceStream = Assembly.GetAssembly(typeof(ClosedXML.Examples.BasicTable)).GetManifestResourceStream("ClosedXML.Examples.Resources.SampleImage.jpg"))
-            using (var bitmap = Bitmap.FromStream(resourceStream) as Bitmap)
+            using (var bitmap = Bitmap.Decode(resourceStream))
             {
                 var ws = wb.AddWorksheet("Sheet1");
                 ws.Cell("D4").Value = "Hello world.";

@@ -2,7 +2,9 @@
 using ClosedXML.Utils;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using SkiaSharp;
+using Font = SkiaSharp.SKFont;
+using FontStyle = SkiaSharp.SKFontStyle;
 
 namespace ClosedXML.Excel
 {
@@ -48,7 +50,7 @@ namespace ClosedXML.Excel
         {
             if (!fontCache.TryGetValue(fontBase, out Font font))
             {
-                font = new Font(fontBase.FontName, (float)fontBase.FontSize, GetFontStyle(fontBase));
+                font = new Font(SKTypeface.FromFamilyName(fontBase.FontName, GetFontStyle(fontBase)), (float)fontBase.FontSize);
                 fontCache.Add(fontBase, font);
             }
             return font;
@@ -56,11 +58,10 @@ namespace ClosedXML.Excel
 
         private static FontStyle GetFontStyle(IXLFontBase font)
         {
-            FontStyle fontStyle = FontStyle.Regular;
-            if (font.Bold) fontStyle |= FontStyle.Bold;
-            if (font.Italic) fontStyle |= FontStyle.Italic;
-            if (font.Strikethrough) fontStyle |= FontStyle.Strikeout;
-            if (font.Underline != XLFontUnderlineValues.None) fontStyle |= FontStyle.Underline;
+            FontStyle fontStyle = FontStyle.Normal;
+            if (font.Bold) fontStyle = FontStyle.Bold;
+            if (font.Italic) fontStyle = FontStyle.Italic;
+            if (font.Italic && font.Bold) fontStyle = FontStyle.BoldItalic;
             return fontStyle;
         }
     }

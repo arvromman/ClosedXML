@@ -1,6 +1,7 @@
 using ClosedXML.Excel.Drawings;
 using System;
-using System.Drawing;
+using Color = SkiaSharp.SKColor;
+using Bitmap = SkiaSharp.SKBitmap;
 using System.IO;
 
 namespace ClosedXML.Excel

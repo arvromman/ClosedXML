@@ -1,5 +1,5 @@
 using System;
-using System.Drawing;
+using Colors = SkiaSharp.SKColors;
 using ClosedXML.Excel;
 
 
@@ -44,7 +44,7 @@ namespace ClosedXML.Examples.Styles
             ro++;
 
             // FromColor(Color color)
-            ws.Cell(++ro, 1).Style.Fill.BackgroundColor = XLColor.FromColor(Color.Red);
+            ws.Cell(++ro, 1).Style.Fill.BackgroundColor = XLColor.FromColor(Colors.Red);
             ws.Cell(ro, 2).Value = "XLColor.FromColor(Color.Red)";
 
             ro++;

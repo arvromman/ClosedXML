@@ -4,7 +4,7 @@ using ClosedXML.Excel.Drawings;
 using ClosedXML.Excel.Ranges.Index;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using Bitmap = SkiaSharp.SKBitmap;
 using System.IO;
 using System.Linq;
 using static ClosedXML.Excel.XLProtectionAlgorithm;

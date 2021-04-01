@@ -3,6 +3,8 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Reflection;
+#pragma warning disable 649
+#pragma warning disable 67
 
 namespace ClosedXML.Tests.Extensions
 {

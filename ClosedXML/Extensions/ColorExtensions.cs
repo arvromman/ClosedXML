@@ -1,6 +1,6 @@
 // Keep this file CodeMaid organised and cleaned
 using System;
-using System.Drawing;
+using Color = SkiaSharp.SKColor;
 
 namespace ClosedXML.Excel
 {
@@ -12,13 +12,13 @@ namespace ClosedXML.Excel
         {
             byte[] bytes = new byte[4];
 
-            bytes[0] = color.A;
+            bytes[0] = color.Alpha;
 
-            bytes[1] = color.R;
+            bytes[1] = color.Red;
 
-            bytes[2] = color.G;
+            bytes[2] = color.Green;
 
-            bytes[3] = color.B;
+            bytes[3] = color.Blue;
 
             char[] chars = new char[bytes.Length * 2];
 

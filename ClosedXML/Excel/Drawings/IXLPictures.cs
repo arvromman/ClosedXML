@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using Bitmap = SkiaSharp.SKBitmap;
 using System.IO;
 
 namespace ClosedXML.Excel.Drawings

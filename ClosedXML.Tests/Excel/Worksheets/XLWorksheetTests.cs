@@ -2,7 +2,7 @@ using ClosedXML.Excel;
 using ClosedXML.Excel.Drawings;
 using NUnit.Framework;
 using System;
-using System.Drawing;
+using Bitmap = SkiaSharp.SKBitmap;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -715,7 +715,7 @@ namespace ClosedXML.Tests
             using (var ms = new MemoryStream())
             using (var resourceStream = Assembly.GetAssembly(typeof(ClosedXML.Examples.BasicTable))
                 .GetManifestResourceStream("ClosedXML.Examples.Resources.SampleImage.jpg"))
-            using (var bitmap = Bitmap.FromStream(resourceStream) as Bitmap)
+            using (var bitmap = Bitmap.Decode(resourceStream))
             using (var wb1 = new XLWorkbook())
             {
                 var ws1 = wb1.Worksheets.Add("Original");

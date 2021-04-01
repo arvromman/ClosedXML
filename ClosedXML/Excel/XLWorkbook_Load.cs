@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using ClosedXML.Excel.Drawings;
 using Ap = DocumentFormat.OpenXml.ExtendedProperties;
 using Op = DocumentFormat.OpenXml.CustomProperties;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;
@@ -19,9 +20,9 @@ using Xdr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 namespace ClosedXML.Excel
 {
     using Ap;
-    using Drawings;
+    using Point = SkiaSharp.SKPoint;
     using Op;
-    using System.Drawing;
+    using Color = SkiaSharp.SKColor;
 
     public partial class XLWorkbook
     {

@@ -1,5 +1,6 @@
 using System;
-using System.Drawing;
+using Color = SkiaSharp.SKColor;
+using Colors = SkiaSharp.SKColors;
 
 namespace ClosedXML.Excel
 {
@@ -52,7 +53,7 @@ namespace ClosedXML.Excel
 
                 if (ColorType == XLColorType.Indexed)
                     if (Indexed == TOOLTIPCOLORINDEX)
-                        return Color.FromArgb(255, Color.Black);
+                        return new Color(Colors.Black.Red, Colors.Black.Green, Colors.Black.Blue, 255);
                     else
                         return IndexedColors[Indexed].Color;
 
@@ -98,7 +99,7 @@ namespace ClosedXML.Excel
                 if (ColorType == XLColorType.Indexed)
                     throw new InvalidOperationException("Cannot extract theme tint from an indexed color.");
 
-                return Color.A / 255.0;
+                return Color.Alpha / 255.0;
             }
         }
 

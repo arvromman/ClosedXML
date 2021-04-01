@@ -13,7 +13,7 @@ namespace ClosedXML.Examples.Misc
             using (var wb = new XLWorkbook())
             {
                 var ws = wb.Worksheets.Add("Workbook Protection");
-                wb.Protect(true, false, "Abc@123");
+                wb.Protect( "Abc@123", XLProtectionAlgorithm.Algorithm.SHA512, XLWorkbookProtectionElements.Everything);
                 wb.SaveAs(filePath);
             }
         }

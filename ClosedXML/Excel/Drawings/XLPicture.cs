@@ -2,11 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
+using Point = SkiaSharp.SKPoint;
+using Image = SkiaSharp.SKImage;
+using ImageFormat = SkiaSharp.SKEncodedImageFormat;
+using Bitmap = SkiaSharp.SKBitmap;
+using Codec = SkiaSharp.SKCodec;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using SkiaSharp;
 
 namespace ClosedXML.Excel.Drawings
 {
@@ -31,12 +35,13 @@ namespace ClosedXML.Excel.Drawings
                 stream.CopyTo(ImageStream);
                 ImageStream.Seek(0, SeekOrigin.Begin);
 
-                using (var image = Image.FromStream(ImageStream))
+                using (var image = Image.FromEncodedData(ImageStream))
                 {
-                    if (_formatMap.Values.Select(f => f.Guid).Contains(image.RawFormat.Guid))
-                        this.Format = _formatMap.Single(f => f.Value.Guid.Equals(image.RawFormat.Guid)).Key;
+                    var codec = SKCodec.Create(ImageStream);
+                    if (_formatMap.Values.Select(f => f).Contains(codec.EncodedFormat))
+                        this.Format = _formatMap.Single(f => f.Value.Equals(codec.EncodedFormat)).Key;
 
-                    DeduceDimensionsFromBitmap(image);
+                    DeduceDimensionsFromBitmap(Bitmap.FromImage(image));
                 }
                 ImageStream.Seek(0, SeekOrigin.Begin);
             }
@@ -53,12 +58,13 @@ namespace ClosedXML.Excel.Drawings
             stream.CopyTo(ImageStream);
             ImageStream.Seek(0, SeekOrigin.Begin);
 
-            using (var image = Image.FromStream(ImageStream))
+            using (var image = Image.FromEncodedData(ImageStream))
             {
-                if (_formatMap.TryGetValue(this.Format, out ImageFormat imageFormat) && imageFormat.Guid != image.RawFormat.Guid)
+                var codec = SKCodec.Create(ImageStream);
+                if (_formatMap.TryGetValue(this.Format, out ImageFormat imageFormat) && imageFormat != codec.EncodedFormat)
                     throw new ArgumentException("The picture format in the stream and the parameter don't match");
 
-                DeduceDimensionsFromBitmap(image);
+                DeduceDimensionsFromBitmap(Bitmap.FromImage(image));
             }
             ImageStream.Seek(0, SeekOrigin.Begin);
         }
@@ -68,11 +74,12 @@ namespace ClosedXML.Excel.Drawings
         {
             if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
             this.ImageStream = new MemoryStream();
-            bitmap.Save(ImageStream, bitmap.RawFormat);
+            var codec = Codec.Create(ImageStream);
+            //bitmap.Encode(codec.EncodedFormat);
             ImageStream.Seek(0, SeekOrigin.Begin);
             DeduceDimensionsFromBitmap(bitmap);
 
-            var formats = _formatMap.Where(f => f.Value.Guid.Equals(bitmap.RawFormat.Guid));
+            var formats = _formatMap.Where(f => f.Value.Equals(codec.EncodedFormat));
             if (!formats.Any() || formats.Count() > 1)
                 throw new ArgumentException("Unsupported or unknown image format in bitmap");
 
@@ -142,7 +149,7 @@ namespace ClosedXML.Excel.Drawings
 
         public Int32 Left
         {
-            get { return Markers[XLMarkerPosition.TopLeft]?.Offset.X ?? 0; }
+            get { return (int) (Markers[XLMarkerPosition.TopLeft]?.Offset.X ?? 0); }
             set
             {
                 if (this.Placement != XLPicturePlacement.FreeFloating)
@@ -174,7 +181,7 @@ namespace ClosedXML.Excel.Drawings
 
         public Int32 Top
         {
-            get { return Markers[XLMarkerPosition.TopLeft]?.Offset.Y ?? 0; }
+            get { return (int) (Markers[XLMarkerPosition.TopLeft]?.Offset.Y ?? 0); }
             set
             {
                 if (this.Placement != XLPicturePlacement.FreeFloating)
@@ -213,7 +220,8 @@ namespace ClosedXML.Excel.Drawings
 
         public IXLWorksheet Worksheet { get; }
 
-        internal IDictionary<XLMarkerPosition, XLMarker> Markers { get; private set; }
+        internal IDictionary<XLMarkerPosition, XLMarker>
+            Markers { get; private set; }
 
         internal String RelId { get; set; }
 
@@ -412,33 +420,12 @@ namespace ClosedXML.Excel.Drawings
                 .Where(pf => properties.Any(pi => pi.Name.Equals(pf.ToString(), StringComparison.OrdinalIgnoreCase)))
                 .ToDictionary(
                     pf => pf,
-                    pf => properties.Single(pi => pi.Name.Equals(pf.ToString(), StringComparison.OrdinalIgnoreCase)).GetValue(null, null) as ImageFormat
+                    pf => properties.Single(pi => pi.Name.Equals(pf.ToString(), StringComparison.OrdinalIgnoreCase)).GetValue(null, null) is SKEncodedImageFormat ?
+                            (SKEncodedImageFormat) properties.Single(pi => pi.Name.Equals(pf.ToString(), StringComparison.OrdinalIgnoreCase)).GetValue(null, null) : SKEncodedImageFormat.Bmp
                 );
         }
 
-        private static ImageFormat FromMimeType(string mimeType)
-        {
-            var guid = ImageCodecInfo.GetImageDecoders().FirstOrDefault(c => c.MimeType.Equals(mimeType, StringComparison.OrdinalIgnoreCase))?.FormatID;
-            if (!guid.HasValue) return null;
-            var property = typeof(System.Drawing.Imaging.ImageFormat).GetProperties(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(pi => (pi.GetValue(null, null) as ImageFormat).Guid.Equals(guid.Value));
-
-            if (property == null) return null;
-            return (property.GetValue(null, null) as ImageFormat);
-        }
-
-        private static string GetMimeType(Image i)
-        {
-            var imgguid = i.RawFormat.Guid;
-            foreach (ImageCodecInfo codec in ImageCodecInfo.GetImageDecoders())
-            {
-                if (codec.FormatID == imgguid)
-                    return codec.MimeType;
-            }
-            return "image/unknown";
-        }
-
-        private void DeduceDimensionsFromBitmap(Image image)
+        private void DeduceDimensionsFromBitmap(Bitmap image)
         {
             this.OriginalWidth = image.Width;
             this.OriginalHeight = image.Height;
